@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Rex - Hospital Management System
+
+Rex is a modern, premium hospital management dashboard designed to streamline healthcare operations. It features a comprehensive interface for managing patients, schedules, and medical reports with a focus on user experience and visual aesthetics.
+
+## Features
+
+### 🏥 Dashboard Overview
+- **Real-time Stats**: Quick view of total patients, appointments, and critical cases.
+- **Recent Activity**: Activity feed of hospital operations.
+- **Patient Queue**: Live view of current waiting list.
+
+### 👥 Patient Management
+- **Patient List**: Searchable and filterable list of all patients.
+- **Patient Profiles**: Detailed view including:
+  - Demographics & Contact Info
+  - Vital Statistics
+  - Medical History timeline
+  - Prescriptions & Reports
+- **Add Patient**: Quick intake flow with QR code scanning (simulated) and manual ID entry.
+
+### 📑 Medical Reports
+- **Report Management**: Centralized hub for lab results, imaging, and consultation notes.
+- **Patient Filtering**: Smart filtering to view reports for specific patients.
+- **Upload System**: Drag-and-drop interface for adding new reports (PDF, Images).
+- **Status Tracking**: Visual indicators for Ready, Processing, and Flagged reports.
+
+### 📅 Schedule & Appointments
+- **Calendar View**: Interactive calendar for tracking appointments.
+- **Upcoming List**: Daily agenda view for doctors and staff.
+
+### 🔐 Security & Access
+- **Hospital Branding**: Dynamic customization based on hospital name.
+- **Secure Access**: Foundation for role-based access control.
+
+## Tech Stack
+
+- **Framework**: [Next.js 14+](https://nextjs.org/) (App Directory)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **UI Components**: [Shadcn/ui](https://ui.shadcn.com/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **State Management**: React Hooks & Context
 
 ## Getting Started
 
-First, run the development server:
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Gokulakrishnxn/Rex-webiste.git
+   cd Rex-webiste
+   ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Run the development server**
+   ```bash
+   npm run dev
+   ```
+
+4. **Open your browser**
+   Navigate to `http://localhost:3000` to view the application.
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── (website)/      # Marketing/Landing page routes
+│   ├── dashboard/      # Protected dashboard routes
+│   │   ├── patients/   # Patient management
+│   │   ├── reports/    # Medical reports
+│   │   └── schedule/   # Calendar & appointments
+│   └── layout.tsx      # Root layout
+├── components/
+│   ├── dashboard/      # Dashboard-specific components (Sidebar, Stats, Modals)
+│   └── ui/             # Reusable UI components (Shadcn)
+└── lib/                # Utilities and helper functions
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Contributing
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Contributions are welcome! Please feel free to submit a Pull Request.
