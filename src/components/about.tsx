@@ -14,7 +14,7 @@ export function About() {
                         Rex empowers healthcare professionals to spend less time on paperwork and more time with patients. We believe that doctors should practice medicine, not administration.
                     </p>
                 </div>
-                <div className="space-y-6 p-8 bg-muted/30 rounded-3xl border border-border/50">
+                <div id="our-mission" className="space-y-6 p-8 bg-muted/30 rounded-3xl border border-border/50">
                     <h3 className="text-2xl font-bold">Our Mission</h3>
                     <p className="text-muted-foreground text-lg leading-relaxed">
                         To transform clinical documentation through ambient AI, enabling healthcare professionals to reclaim their time, improve patient care, and reduce burnout.

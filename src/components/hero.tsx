@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Activity } from "lucide-react";
 import Link from "next/link";
+import { DownloadModal } from "@/components/download-modal";
 
 export function Hero() {
     return (
@@ -23,9 +24,11 @@ export function Hero() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center gap-4">
-                <Button size="lg" className="h-12 px-8 rounded-full bg-foreground text-background hover:bg-foreground/90 transition-all">
-                    Try it
-                </Button>
+                <DownloadModal>
+                    <Button size="lg" className="h-12 px-8 rounded-full bg-foreground text-background hover:bg-foreground/90 transition-all">
+                        Try it
+                    </Button>
+                </DownloadModal>
                 <Button variant="outline" size="lg" className="h-12 px-8 rounded-full border-border/60 hover:bg-muted/50 transition-all">
                     Talk to us
                 </Button>

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = Geist({
@@ -24,8 +23,6 @@ export const metadata: Metadata = {
   description: "Rex Website - Building the future",
 };
 
-import { Footer } from "@/components/footer";
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -40,11 +37,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Navbar />
-          <main className="flex-1">
-            {children}
-          </main>
-          <Footer />
+          {children}
         </ThemeProvider>
       </body>
     </html>
