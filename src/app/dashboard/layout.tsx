@@ -1,7 +1,7 @@
-
 import { DashboardSidebar } from "@/components/dashboard/sidebar"
-import { Button } from "@/components/ui/button"
-import { Bell, Search } from "lucide-react"
+import { NotificationDropdown } from "@/components/dashboard/notification-dropdown"
+import { UserAvatar } from "@/components/dashboard/user-avatar"
+import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 
 export default function DashboardLayout({
@@ -24,11 +24,10 @@ export default function DashboardLayout({
                             />
                         </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <Button variant="ghost" size="icon" className="rounded-full relative">
-                            <Bell className="h-5 w-5 text-muted-foreground" />
-                            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 border-2 border-background"></span>
-                        </Button>
+                    <div className="flex items-center gap-3">
+                        <NotificationDropdown />
+                        <div className="h-8 w-px bg-border/60" />
+                        <UserAvatar />
                     </div>
                 </header>
                 <main className="flex-1 p-6 md:p-8 overflow-y-auto">

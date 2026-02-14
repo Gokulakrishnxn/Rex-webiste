@@ -2,11 +2,12 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
-import { LayoutDashboard, Users, Calendar, MessageSquare, FileText, Bell } from "lucide-react"
+import { useState, useEffect } from "react"
+import { LayoutDashboard, Users, Calendar, FileText } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Logo } from "@/components/logo"
+import { getFirebaseAuth } from "@/lib/firebase"
 
 const sidebarItems = [
     { title: "Overview", href: "/dashboard", icon: LayoutDashboard },
@@ -17,20 +18,45 @@ const sidebarItems = [
 
 export function DashboardSidebar() {
     const pathname = usePathname()
-    const [hospitalName, setHospitalName] = useState("Rex Portal")
+    const [hospitalName, setHospitalName] = useState<string>("Hospital")
+    const [userEmail, setUserEmail] = useState<string>("")
+    const [initials, setInitials] = useState<string>("H")
 
     useEffect(() => {
+        // Get hospital name from localStorage
         const storedName = localStorage.getItem("hospitalName")
         if (storedName) {
             setHospitalName(storedName)
+            // Generate initials from hospital name
+            const nameInitials = storedName
+                .split(" ")
+                .map(word => word[0])
+                .join("")
+                .toUpperCase()
+                .slice(0, 2)
+            setInitials(nameInitials)
+        }
+
+        // Get user email from Firebase
+        const auth = getFirebaseAuth()
+        const user = auth.currentUser
+        if (user?.email) {
+            setUserEmail(user.email)
+            // If no hospital name, use email initials
+            if (!storedName) {
+                const emailInitials = user.email
+                    .split("@")[0]
+                    .slice(0, 2)
+                    .toUpperCase()
+                setInitials(emailInitials)
+            }
         }
     }, [])
 
     return (
         <aside className="w-64 border-r border-border/40 bg-background hidden md:flex flex-col h-screen sticky top-0">
-            <Link href="/" className="h-16 flex items-center px-6 border-b border-border/40 gap-2">
+            <Link href="/" className="h-16 flex items-center px-6 border-b border-border/40">
                 <Logo href={undefined} size="sm" />
-                <span className="font-bold text-xl tracking-tighter truncate" title={hospitalName}>{hospitalName}</span>
             </Link>
 
             <div className="flex-1 py-6 px-4 space-y-1">
@@ -56,12 +82,12 @@ export function DashboardSidebar() {
 
             <div className="p-4 border-t border-border/40">
                 <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted/50 transition-colors cursor-pointer">
-                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <span className="font-semibold text-primary">DR</span>
+                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-sm">
+                        <span className="font-bold text-primary-foreground text-sm">{initials}</span>
                     </div>
                     <div className="flex-1 overflow-hidden">
-                        <p className="text-sm font-medium truncate">Dr. Richardson</p>
-                        <p className="text-xs text-muted-foreground truncate">Cardiology</p>
+                        <p className="text-sm font-medium truncate">{hospitalName}</p>
+                        <p className="text-xs text-muted-foreground truncate">{userEmail}</p>
                     </div>
                 </div>
             </div>

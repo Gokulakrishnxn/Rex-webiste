@@ -1,13 +1,13 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { User, Building2, ArrowLeft } from "lucide-react"
+import { User, Building2, ArrowLeft, Loader2 } from "lucide-react"
 import {
     Card,
     CardContent,
     CardDescription,
-    CardFooter,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
@@ -27,28 +27,107 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
+import { getFirebaseAuth } from "@/lib/firebase"
+import {
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+} from "firebase/auth"
 
 interface AuthModalProps {
     children: React.ReactNode;
     defaultTab?: "login" | "signup";
 }
 
+const FIREBASE_NOT_CONFIGURED_MSG =
+    "Sign-in is not configured. Add NEXT_PUBLIC_FIREBASE_API_KEY (and other web app config) to .env.local, then restart the dev server."
+
 export function AuthModal({ children, defaultTab = "login" }: AuthModalProps) {
+    const router = useRouter()
     const [step, setStep] = useState<"role-selection" | "form">("role-selection");
     const [role, setRole] = useState<"patient" | "hospital" | null>(null);
+    const [authLoading, setAuthLoading] = useState(false);
+    const [authError, setAuthError] = useState<string | null>(null);
 
     const handleRoleSelect = (selectedRole: "patient" | "hospital") => {
         setRole(selectedRole);
         setStep("form");
+        setAuthError(null);
     };
 
     const handleBack = () => {
         setStep("role-selection");
         setRole(null);
+        setAuthError(null);
     };
 
-    // Reset state when modal closes (optional, but good UX if we could hook into onOpenChange)
-    // For now, simpler implementation.
+    const verifyAndRedirect = async (idToken: string, hospitalName?: string) => {
+        const res = await fetch("/api/auth/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idToken }),
+        });
+        if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.error || "Verification failed");
+        }
+        if (hospitalName) localStorage.setItem("hospitalName", hospitalName);
+        router.push("/dashboard");
+    };
+
+    const handleHospitalLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setAuthError(null);
+        setAuthLoading(true);
+        const email = (document.getElementById("email") as HTMLInputElement)?.value?.trim();
+        const password = (document.getElementById("password") as HTMLInputElement)?.value;
+        if (!email || !password) {
+            setAuthError("Please enter email and password");
+            setAuthLoading(false);
+            return;
+        }
+        try {
+            const auth = getFirebaseAuth();
+            const { user } = await signInWithEmailAndPassword(auth, email, password);
+            const idToken = await user.getIdToken();
+            await verifyAndRedirect(idToken);
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Login failed";
+            if (message.includes("Firebase client config missing") || message.includes("missing"))
+                setAuthError(FIREBASE_NOT_CONFIGURED_MSG);
+            else
+                setAuthError(message.replace("Firebase: ", ""));
+        } finally {
+            setAuthLoading(false);
+        }
+    };
+
+    const handleHospitalSignup = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setAuthError(null);
+        setAuthLoading(true);
+        const name = (document.getElementById("name") as HTMLInputElement)?.value?.trim();
+        const email = (document.getElementById("signup-email") as HTMLInputElement)?.value?.trim();
+        const password = (document.getElementById("signup-password") as HTMLInputElement)?.value;
+        if (!email || !password) {
+            setAuthError("Please enter email and password");
+            setAuthLoading(false);
+            return;
+        }
+        try {
+            const auth = getFirebaseAuth();
+            const { user } = await createUserWithEmailAndPassword(auth, email, password);
+            const idToken = await user.getIdToken();
+            await verifyAndRedirect(idToken, name || undefined);
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Sign up failed";
+            if (message.includes("Firebase client config missing") || message.includes("missing"))
+                setAuthError(FIREBASE_NOT_CONFIGURED_MSG);
+            else
+                setAuthError(message.replace("Firebase: ", ""));
+        } finally {
+            setAuthLoading(false);
+        }
+    };
 
     return (
         <Dialog>
@@ -138,69 +217,87 @@ export function AuthModal({ children, defaultTab = "login" }: AuthModalProps) {
                                 <TabsContent value="login" className="mt-0">
                                     <Card className="border-0 shadow-none bg-transparent">
                                         <CardContent className="space-y-4 px-0 pb-0">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="email" className="text-sm font-medium">Email</Label>
-                                                <Input
-                                                    id="email"
-                                                    type="email"
-                                                    placeholder="admin@hospital.com"
-                                                    className="h-12 bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 transition-all font-medium"
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="password" className="text-sm font-medium">Password</Label>
-                                                <Input
-                                                    id="password"
-                                                    type="password"
-                                                    className="h-12 bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 transition-all font-medium"
-                                                />
-                                            </div>
-                                            <Button className="w-full h-12 text-base font-semibold mt-4 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all">
-                                                Login
-                                            </Button>
+                                            {authError && (
+                                                <p className="text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-950/30 px-3 py-2 rounded-lg">
+                                                    {authError}
+                                                </p>
+                                            )}
+                                            <form onSubmit={handleHospitalLogin} className="space-y-4">
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                                                    <Input
+                                                        id="email"
+                                                        type="email"
+                                                        placeholder="admin@hospital.com"
+                                                        className="h-12 bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 transition-all font-medium"
+                                                        disabled={authLoading}
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                                                    <Input
+                                                        id="password"
+                                                        type="password"
+                                                        className="h-12 bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 transition-all font-medium"
+                                                        disabled={authLoading}
+                                                    />
+                                                </div>
+                                                <Button
+                                                    type="submit"
+                                                    className="w-full h-12 text-base font-semibold mt-4 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all"
+                                                    disabled={authLoading}
+                                                >
+                                                    {authLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Login"}
+                                                </Button>
+                                            </form>
                                         </CardContent>
                                     </Card>
                                 </TabsContent>
                                 <TabsContent value="signup" className="mt-0">
                                     <Card className="border-0 shadow-none bg-transparent">
                                         <CardContent className="space-y-4 px-0 pb-0">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="name" className="text-sm font-medium">Hospital Name</Label>
-                                                <Input
-                                                    id="name"
-                                                    placeholder="General Hospital"
-                                                    className="h-12 bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 transition-all font-medium"
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="signup-email" className="text-sm font-medium">Email</Label>
-                                                <Input
-                                                    id="signup-email"
-                                                    type="email"
-                                                    placeholder="admin@hospital.com"
-                                                    className="h-12 bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 transition-all font-medium"
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="signup-password" className="text-sm font-medium">Password</Label>
-                                                <Input
-                                                    id="signup-password"
-                                                    type="password"
-                                                    className="h-12 bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 transition-all font-medium"
-                                                />
-                                            </div>
-                                            <Button
-                                                className="w-full h-12 text-base font-semibold mt-4 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all"
-                                                onClick={() => {
-                                                    const nameInput = document.getElementById("name") as HTMLInputElement;
-                                                    if (nameInput && nameInput.value) {
-                                                        localStorage.setItem("hospitalName", nameInput.value);
-                                                    }
-                                                    window.location.href = "/dashboard";
-                                                }}
-                                            >
-                                                Create Account
-                                            </Button>
+                                            {authError && (
+                                                <p className="text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-950/30 px-3 py-2 rounded-lg">
+                                                    {authError}
+                                                </p>
+                                            )}
+                                            <form onSubmit={handleHospitalSignup} className="space-y-4">
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="name" className="text-sm font-medium">Hospital Name</Label>
+                                                    <Input
+                                                        id="name"
+                                                        placeholder="General Hospital"
+                                                        className="h-12 bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 transition-all font-medium"
+                                                        disabled={authLoading}
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="signup-email" className="text-sm font-medium">Email</Label>
+                                                    <Input
+                                                        id="signup-email"
+                                                        type="email"
+                                                        placeholder="admin@hospital.com"
+                                                        className="h-12 bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 transition-all font-medium"
+                                                        disabled={authLoading}
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="signup-password" className="text-sm font-medium">Password</Label>
+                                                    <Input
+                                                        id="signup-password"
+                                                        type="password"
+                                                        className="h-12 bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 transition-all font-medium"
+                                                        disabled={authLoading}
+                                                    />
+                                                </div>
+                                                <Button
+                                                    type="submit"
+                                                    className="w-full h-12 text-base font-semibold mt-4 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all"
+                                                    disabled={authLoading}
+                                                >
+                                                    {authLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Create Account"}
+                                                </Button>
+                                            </form>
                                         </CardContent>
                                     </Card>
                                 </TabsContent>
