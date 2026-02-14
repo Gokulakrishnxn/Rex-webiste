@@ -1,5 +1,6 @@
 
 import { Button } from "@/components/ui/button"
+import { DownloadModal } from "@/components/download-modal"
 import { ArrowRight, Smartphone } from "lucide-react"
 
 export function Download() {
@@ -27,10 +28,12 @@ export function Download() {
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                        <Button size="lg" className="h-12 px-6 rounded-full bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90 font-semibold text-sm">
-                            <ArrowRight className="mr-2 h-4 w-4" />
-                            Download App
-                        </Button>
+                        <DownloadModal>
+                            <Button size="lg" className="h-12 px-6 rounded-full bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90 font-semibold text-sm">
+                                <ArrowRight className="mr-2 h-4 w-4" />
+                                Download App
+                            </Button>
+                        </DownloadModal>
                     </div>
                 </div>
 

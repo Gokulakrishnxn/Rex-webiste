@@ -1,8 +1,10 @@
 
 import Link from "next/link";
-import { Activity, Download } from "lucide-react";
+import { Download } from "lucide-react";
 import { Button } from "./ui/button";
 import { ModeToggle } from "./mode-toggle";
+import { Logo } from "@/components/logo";
+import { DownloadModal } from "@/components/download-modal";
 
 export function Footer() {
     return (
@@ -12,10 +14,7 @@ export function Footer() {
 
                     {/* Brand & Description */}
                     <div className="space-y-4 max-w-sm lg:col-span-1">
-                        <Link href="/" className="flex items-center space-x-2">
-                            <Activity className="h-6 w-6 text-zinc-900 dark:text-zinc-50" />
-                            <span className="font-bold text-xl tracking-tighter">Rex</span>
-                        </Link>
+                        <Logo href="/" size="sm" />
                         <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed">
                             Transforming clinical documentation with ambient AI. Recover time, improve care, and reduce burnout.
                         </p>
@@ -34,10 +33,12 @@ export function Footer() {
                         </div>
                         <div className="space-y-3">
                             <h4 className="font-semibold text-sm tracking-wider uppercase text-zinc-500 dark:text-zinc-400">Get the App</h4>
-                            <Button className="w-full sm:w-auto rounded-full">
-                                <Download className="mr-2 h-4 w-4" />
-                                Download App
-                            </Button>
+                            <DownloadModal>
+                                <Button className="w-full sm:w-auto rounded-full">
+                                    <Download className="mr-2 h-4 w-4" />
+                                    Download App
+                                </Button>
+                            </DownloadModal>
                         </div>
                     </div>
                 </div>
@@ -50,14 +51,6 @@ export function Footer() {
 
                     <div className="flex items-center gap-4">
                         <ModeToggle className="text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-50 border-0 bg-transparent" />
-                        <Button variant="ghost" size="icon" className="text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-50 rounded-full">
-                            <span className="sr-only">Twitter</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-twitter"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" /></svg>
-                        </Button>
-                        <Button variant="ghost" size="icon" className="text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-50 rounded-full">
-                            <span className="sr-only">LinkedIn</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-linkedin"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" /><rect width="4" height="12" x="2" y="9" /><circle cx="4" cy="4" r="2" /></svg>
-                        </Button>
                     </div>
                 </div>
             </div>

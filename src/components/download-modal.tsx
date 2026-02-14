@@ -7,7 +7,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import { ArrowRight, Smartphone, Download } from "lucide-react"
+import { ArrowRight, Download } from "lucide-react"
 
 interface DownloadModalProps {
     children: React.ReactNode
@@ -35,8 +35,9 @@ export function DownloadModal({ children }: DownloadModalProps) {
                         {/* Decorative */}
                         <div className="absolute top-0 right-0 p-24 bg-primary/5 rounded-full blur-3xl translate-x-8 -translate-y-8 pointer-events-none"></div>
 
-                        <div className="h-14 w-14 rounded-2xl bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 flex items-center justify-center z-10 shadow-lg">
-                            <Smartphone className="h-7 w-7" />
+                        <div className="h-14 w-14 rounded-2xl flex items-center justify-center z-10 shadow-lg overflow-hidden flex-shrink-0">
+                            <img src="/rexdark.png" alt="Rex" className="h-full w-auto max-w-full object-contain dark:hidden" />
+                            <img src="/rexlight.png" alt="Rex" className="h-full w-auto max-w-full object-contain hidden dark:block" />
                         </div>
 
                         <div className="space-y-3 z-10 text-left">

@@ -3,9 +3,10 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
-import { LayoutDashboard, Users, Calendar, MessageSquare, Activity, FileText, Bell } from "lucide-react"
+import { LayoutDashboard, Users, Calendar, MessageSquare, FileText, Bell } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Logo } from "@/components/logo"
 
 const sidebarItems = [
     { title: "Overview", href: "/dashboard", icon: LayoutDashboard },
@@ -27,12 +28,10 @@ export function DashboardSidebar() {
 
     return (
         <aside className="w-64 border-r border-border/40 bg-background hidden md:flex flex-col h-screen sticky top-0">
-            <div className="h-16 flex items-center px-6 border-b border-border/40">
-                <Link href="/" className="flex items-center space-x-2">
-                    <Activity className="h-6 w-6 text-primary" />
-                    <span className="font-bold text-xl tracking-tighter truncate" title={hospitalName}>{hospitalName}</span>
-                </Link>
-            </div>
+            <Link href="/" className="h-16 flex items-center px-6 border-b border-border/40 gap-2">
+                <Logo href={undefined} size="sm" />
+                <span className="font-bold text-xl tracking-tighter truncate" title={hospitalName}>{hospitalName}</span>
+            </Link>
 
             <div className="flex-1 py-6 px-4 space-y-1">
                 <div className="mb-6 px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
