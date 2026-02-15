@@ -1,6 +1,7 @@
 import { DashboardSidebar } from "@/components/dashboard/sidebar"
 import { NotificationDropdown } from "@/components/dashboard/notification-dropdown"
 import { UserAvatar } from "@/components/dashboard/user-avatar"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 
@@ -25,6 +26,7 @@ export default function DashboardLayout({
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
+                        <ThemeToggle />
                         <NotificationDropdown />
                         <div className="h-8 w-px bg-border/60" />
                         <UserAvatar />

@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
 import { LayoutDashboard, Users, Calendar, FileText } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 import { Logo } from "@/components/logo"
 import { getFirebaseAuth } from "@/lib/firebase"
 
@@ -55,9 +54,9 @@ export function DashboardSidebar() {
 
     return (
         <aside className="w-64 border-r border-border/40 bg-background hidden md:flex flex-col h-screen sticky top-0">
-            <Link href="/" className="h-16 flex items-center px-6 border-b border-border/40">
-                <Logo href={undefined} size="sm" />
-            </Link>
+            <div className="h-16 flex items-center px-6 border-b border-border/40">
+                <Logo href="/" size="sm" />
+            </div>
 
             <div className="flex-1 py-6 px-4 space-y-1">
                 <div className="mb-6 px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
