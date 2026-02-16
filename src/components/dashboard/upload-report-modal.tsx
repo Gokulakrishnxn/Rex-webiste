@@ -34,7 +34,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import { Check, ChevronsUpDown, UploadCloud, X, File } from "lucide-react"
+import { Check, ChevronsUpDown, UploadCloud, X, File, Loader2, CheckCircle2, AlertCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 // Mock patients data - in a real app this would come from an API or prop
@@ -58,6 +58,13 @@ export function UploadReportModal({ open, onOpenChange, defaultPatient }: Upload
     const [openCombobox, setOpenCombobox] = useState(false)
     const [file, setFile] = useState<File | null>(null)
     const [isDragging, setIsDragging] = useState(false)
+    const [reportName, setReportName] = useState("")
+    const [reportType, setReportType] = useState("")
+    const [uploading, setUploading] = useState(false)
+    const [uploadStatus, setUploadStatus] = useState<{
+        type: "success" | "error" | null
+        message: string
+    }>({ type: null, message: "" })
 
     // Update internal state when defaultPatient prop changes
     useEffect(() => {
@@ -89,12 +96,62 @@ export function UploadReportModal({ open, onOpenChange, defaultPatient }: Upload
         }
     }
 
-    const handleSubmit = () => {
-        // Handle upload logic here
-        console.log("Uploading...", { selectedPatient, file })
-        onOpenChange(false)
-        setFile(null)
-        // Reset patient if not default? Maybe keep it.
+    const handleSubmit = async () => {
+        if (!file || !selectedPatient || !reportType) {
+            setUploadStatus({
+                type: "error",
+                message: "Please fill in all required fields."
+            })
+            return
+        }
+
+        setUploading(true)
+        setUploadStatus({ type: null, message: "" })
+
+        try {
+            const formData = new FormData()
+            formData.append('file', file)
+            formData.append('patientId', selectedPatient)
+            formData.append('documentType', reportType)
+            if (reportName) {
+                formData.append('reportName', reportName)
+            }
+
+            const response = await fetch('/api/upload-document', {
+                method: 'POST',
+                body: formData,
+            })
+
+            const data = await response.json()
+
+            if (response.ok) {
+                setUploadStatus({
+                    type: "success",
+                    message: "Report uploaded successfully!"
+                })
+                
+                // Reset form after 2 seconds
+                setTimeout(() => {
+                    setFile(null)
+                    setReportName("")
+                    setReportType("")
+                    if (!defaultPatient) {
+                        setSelectedPatient("")
+                    }
+                    setUploadStatus({ type: null, message: "" })
+                    onOpenChange(false)
+                }, 2000)
+            } else {
+                throw new Error(data.error || 'Upload failed')
+            }
+        } catch (error) {
+            setUploadStatus({
+                type: "error",
+                message: error instanceof Error ? error.message : "Upload failed. Please try again."
+            })
+        } finally {
+            setUploading(false)
+        }
     }
 
     return (
@@ -159,19 +216,28 @@ export function UploadReportModal({ open, onOpenChange, defaultPatient }: Upload
                     <div className="grid grid-cols-2 gap-4">
                         <div className="grid gap-2">
                             <Label htmlFor="name">Report Name</Label>
-                            <Input id="name" placeholder="e.g. Blood Test" className="rounded-xl h-11" />
+                            <Input 
+                                id="name" 
+                                placeholder="e.g. Blood Test" 
+                                className="rounded-xl h-11"
+                                value={reportName}
+                                onChange={(e) => setReportName(e.target.value)}
+                                disabled={uploading}
+                            />
                         </div>
                         <div className="grid gap-2">
-                            <Label>Type</Label>
-                            <Select>
+                            <Label>Type *</Label>
+                            <Select value={reportType} onValueChange={setReportType} disabled={uploading}>
                                 <SelectTrigger className="rounded-xl h-11">
                                     <SelectValue placeholder="Select type" />
                                 </SelectTrigger>
                                 <SelectContent className="rounded-xl">
-                                    <SelectItem value="lab">Lab Report</SelectItem>
-                                    <SelectItem value="imaging">Imaging (X-Ray, MRI)</SelectItem>
-                                    <SelectItem value="consultation">Consultation Note</SelectItem>
+                                    <SelectItem value="lab_report">Lab Report</SelectItem>
+                                    <SelectItem value="medical_imaging">Medical Imaging</SelectItem>
+                                    <SelectItem value="consultation_note">Consultation Note</SelectItem>
                                     <SelectItem value="prescription">Prescription</SelectItem>
+                                    <SelectItem value="discharge_summary">Discharge Summary</SelectItem>
+                                    <SelectItem value="other">Other</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -230,10 +296,49 @@ export function UploadReportModal({ open, onOpenChange, defaultPatient }: Upload
                             )}
                         </div>
                     </div>
+
+                    {/* Status Messages */}
+                    {uploadStatus.type && (
+                        <div
+                            className={cn(
+                                "flex items-center gap-2 p-3 rounded-lg",
+                                uploadStatus.type === "success"
+                                    ? "bg-green-50 dark:bg-green-950/30 text-green-900 dark:text-green-100"
+                                    : "bg-red-50 dark:bg-red-950/30 text-red-900 dark:text-red-100"
+                            )}
+                        >
+                            {uploadStatus.type === "success" ? (
+                                <CheckCircle2 className="h-4 w-4" />
+                            ) : (
+                                <AlertCircle className="h-4 w-4" />
+                            )}
+                            <span className="text-sm">{uploadStatus.message}</span>
+                        </div>
+                    )}
                 </div>
                 <DialogFooter>
-                    <Button variant="ghost" onClick={() => onOpenChange(false)} className="rounded-xl">Cancel</Button>
-                    <Button onClick={handleSubmit} className="rounded-xl" disabled={!selectedPatient || !file}>Upload Report</Button>
+                    <Button 
+                        variant="ghost" 
+                        onClick={() => onOpenChange(false)} 
+                        className="rounded-xl"
+                        disabled={uploading}
+                    >
+                        Cancel
+                    </Button>
+                    <Button 
+                        onClick={handleSubmit} 
+                        className="rounded-xl" 
+                        disabled={!selectedPatient || !file || !reportType || uploading}
+                    >
+                        {uploading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Uploading...
+                            </>
+                        ) : (
+                            "Upload Report"
+                        )}
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
